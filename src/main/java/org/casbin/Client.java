@@ -2,6 +2,7 @@ package org.casbin;
 
 import org.apache.commons.cli.*;
 import org.casbin.jcasbin.exception.CasbinConfigException;
+import org.casbin.jcasbin.main.EnforceResult;
 import org.casbin.jcasbin.main.Enforcer;
 
 public class Client {
@@ -11,8 +12,8 @@ public class Client {
                 addOption("p", "policy", true, "the path of the policy file"),
                 addOption("e", "enforce", true, "enforce"),
                 addOption("ex", "enforceEx", true, "enforceEx"),
-                addOption("ap", "addPolicy", true, "Add a policy rule to the storage"),
-                addOption("rp", "removePolicy", true, "Remove a policy rule from the storage")
+                addOption("ap", "addPolicy", true, "Add a policy rule to the policy file"),
+                addOption("rp", "removePolicy", true, "Remove a policy rule from the policy file")
         };
         for (Option option : cliOptions) {
             options.addOption(option);
@@ -45,9 +46,9 @@ public class Client {
             return result;
         } else if (cmd.hasOption("enforceEx")) {
             String enforceArgs = cmd.getOptionValue("enforceEx").replace(" ","");
-            boolean result = enforcer.enforceEx(enforceArgs.split(",")).isAllow();
-            System.out.println(result ? "Allow" : "Ban");
-            return result;
+            EnforceResult enforceResult = enforcer.enforceEx(enforceArgs.split(","));
+            System.out.println(enforceResult);
+            return enforceResult.isAllow();
         }else if (cmd.hasOption("addPolicy")){
             String policyArgs = cmd.getOptionValue("addPolicy").replace(" ","");
             boolean result = enforcer.addPolicy(policyArgs.split(","));
@@ -69,6 +70,6 @@ public class Client {
     public static void main(String[] args) throws ParseException {
         Client cli = new Client();
         Object run = cli.run(args);
-        System.out.println(run);
+//        System.out.println(run);
     }
 }
