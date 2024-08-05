@@ -9,8 +9,7 @@
     ["@semantic-release/github", {
       "assets": [
         {
-          "path": "target/*.jar",
-          "label": "My Application JAR"
+          "path": "target/casbin-java-cli.jar"
         }
       ]
     }]
