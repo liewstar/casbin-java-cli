@@ -21,33 +21,18 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - run: mkdir staging && cp target/*.jar staging
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 20
 
-      - name: Set Release version env variable
-        run: |
-          echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-      - name: "Build & test"
-        run: |
-          echo "done!"
-      - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.RELEASE_VERSION }}"
-          prerelease: false
-          title: "Release ${{ env.RELEASE_VERSION }}"
-          files: |
-            staging/*.jar
+      - name: Install semantic-release and plugins
+        run: npm install -D semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
 
-      - name: Semantic Release
-        run: |
-          npm install -g @conveyal/maven-semantic-release semantic-release
-          semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --skip-maven-deploy
+      - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
 
 
