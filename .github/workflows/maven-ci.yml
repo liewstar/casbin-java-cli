@@ -34,8 +34,8 @@ jobs:
 
       - name: Semantic Release
         run: |
-          npm install -g @semantic-release/changelog @semantic-release/git @semantic-release/github
-          semantic-release --prepare @semantic-release/changelog --verify-conditions @semantic-release/github --verify-release @semantic-release/github --publish @semantic-release/github
+          npm install -g @conveyal/maven-semantic-release semantic-release
+          semantic-release --prepare @semantic-release/github --publish @semantic-release/github --verify-conditions @semantic-release/github --verify-release @semantic-release/github --skip-maven-deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #          GPG_KEY_NAME: ${{ secrets.GPG_KEY_NAME }}
