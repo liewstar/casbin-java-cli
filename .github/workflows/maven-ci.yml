@@ -28,13 +28,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Semantic Release
-        run: |
-          npm install -g @conveyal/maven-semantic-release semantic-release
-          semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --skip-maven-deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set Release version env variable
         run: |
           echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -49,5 +42,12 @@ jobs:
           title: "Release ${{ env.RELEASE_VERSION }}"
           files: |
             staging/*.jar
+
+      - name: Semantic Release
+        run: |
+          npm install -g @conveyal/maven-semantic-release semantic-release
+          semantic-release --prepare @conveyal/maven-semantic-release --publish @semantic-release/github,@conveyal/maven-semantic-release --verify-conditions @semantic-release/github,@conveyal/maven-semantic-release --verify-release @conveyal/maven-semantic-release --skip-maven-deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
