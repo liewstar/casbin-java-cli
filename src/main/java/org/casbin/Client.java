@@ -36,7 +36,7 @@ public class Client {
         try {
             enforcer = new Enforcer(modelPath, policyPath);
         } catch (CasbinConfigException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace();//handle exception
         }
 
         if(cmd.hasOption("enforce")) {
