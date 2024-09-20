@@ -111,4 +111,10 @@ public class ClientTest {
 
         }
 
+        @Test
+        public void testEnforce() {
+            assertEquals(Client.run(new String[]{"enforce","-m","examples/rbac_model.conf","-p","examples/rbac_policy.csv","alice", "data1", "read"}), "true");
+            assertEquals(Client.run(new String[]{"enforce","-m","[request_definition]|r = sub, obj, act|[policy_definition]|p = sub, obj, act|[role_definition]|g = _, _|[policy_effect]|e = some(where (p.eft == allow))|[matchers]|m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act", "-p", "p, alice, data1, read|p, bob, data2, write|p, data2_admin, data2, read|p, data2_admin, data2, write|g, alice, data2_admin","alice", "data1", "read"}), "true");
+        }
+
 }

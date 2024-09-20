@@ -22,7 +22,7 @@ mvn clean install
 |-----------------------|----------------------------------------------|------|-----------------------------------------------------------|
 | `-m, --model`         | The path of the model file or model text     | y    | Please wrap it with `""` and separate each line with `\|` |
 | `-p, --policy`        | The path of the policy file or policy text   | y    | Please wrap it with `""` and separate each line with `\|` |          
-| `-e, --enforce`       | Check permissions                            | n    | Please wrap it with `""`                                  |
+| `enforce`             | Check permissions                            | n    | Please wrap it with `""`                                  |
 | `-ex, --enforceEx`    | Check permissions and get which policy it is | n    | Please wrap it with `""`                                  |
 | `-af, --addFuntion`   | Add custom funtion                           | n    | Please wrap it with `""` and separate each line with `\|` |
 | `-ap, --addPolicy`    | Add a policy rule to the policy file         | n    | Please wrap it with `""`                                  |
@@ -33,13 +33,13 @@ mvn clean install
 - Check whether Alice has read permission on data1
 
     ```shell
-    ./casbin -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" -e "alice, data1, read"
+    ./casbin enforce -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" "alice" "data1" "read"
     ```
-    > Allow
+    > Allowed
     ```shell
-    ./casbin -m "[request_definition]|r = sub, obj, act|[policy_definition]|p = sub, obj, act|[role_definition]|g = _, _|[policy_effect]|e = some(where (p.eft == allow))|[matchers]|m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act" -p "p, alice, data1, read|p, bob, data2, write|p, data2_admin, data2, read|p, data2_admin, data2, write|g, alice, data2_admin" -e "alice, data1, read"
+    ./casbin enforce -m "[request_definition]|r = sub, obj, act|[policy_definition]|p = sub, obj, act|[role_definition]|g = _, _|[policy_effect]|e = some(where (p.eft == allow))|[matchers]|m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act" -p "p, alice, data1, read|p, bob, data2, write|p, data2_admin, data2, read|p, data2_admin, data2, write|g, alice, data2_admin" "alice" "data1" "read"
     ```
-  > Allow
+  > Allowed
 
 - Check whether Alice has write permission for data2. If so, display the effective policy.
 
