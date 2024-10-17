@@ -24,7 +24,7 @@ mvn clean install
 | `-p, --policy`        | The path of the policy file or policy text   | y    | Please wrap it with `""` and separate each line with `\|` |          
 | `-e, --enforce`       | Check permissions                            | n    | Please wrap it with `""`                                  |
 | `-ex, --enforceEx`    | Check permissions and get which policy it is | n    | Please wrap it with `""`                                  |
-| `-af, --addFuntion`   | Add custom funtion                           | n    | Please wrap it with `""` and separate each line with `\|` |
+| `-AF, --addFuntion`   | Add custom funtion                           | n    | Please wrap it with `""` and separate each line with `\|` |
 | `-ap, --addPolicy`    | Add a policy rule to the policy file         | n    | Please wrap it with `""`                                  |
 | `-rp, --removePolicy` | Remove a policy rule from the policy file    | n    | Please wrap it with `""`                                  |
 
@@ -44,21 +44,21 @@ mvn clean install
 - Check whether Alice has write permission for data2. If so, display the effective policy.
 
     ```shell
-    ./casbin -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" -ex "alice, data2, write"
+    ./casbin EX -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" "alice" "data2" "write"
     ```
     > true Reason: [alice, data2, write]
 
 - Add a policy to the policy file
 
     ```shell
-    ./casbin -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" -ap "alice, data2, write"
+    ./casbin AP -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" "alice" "data2" "write"
     ```
     > Add Success
 
 - Delete a policy from the policy file
 
     ```shell
-    ./casbin -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" -rp "alice,data1,read"
+    ./casbin RP -m "examples/rbac_model.conf" -p "examples/rbac_policy.csv" "alice" "data1" "read"
     ```
     > Remove Success
 
