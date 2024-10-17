@@ -28,8 +28,7 @@ public class CommandExecutor {
     public String outputResult() throws InvocationTargetException, IllegalAccessException, JsonProcessingException {
         Class<? extends Enforcer> clazz = enforcer.getClass();
         Method[] methods = clazz.getMethods();
-        //Remove overloaded methods (with List parameters)
-        methods = filterOverloadedMethods(methods);
+
         ResponseBody responseBody = new ResponseBody(null, null);
         for (Method method : methods) {
             String methodName = method.getName();
@@ -38,26 +37,45 @@ public class CommandExecutor {
                 Object[] convertedParams = new Object[genericParameterTypes.length];
                 Class<?> returnType = method.getReturnType();
 
-                for (int i = 0; i < genericParameterTypes.length; i++) {
-                    //String ... -> String[]
-                    //String[][] -> String[][]
-                    //List<List<String>> -> java.util.List<java.util.List<java.lang.String>>
-                    //List<String> -> java.util.List<java.lang.String>
-                    if(genericParameterTypes[i] == String.class) {
-                        convertedParams[i] = inputVal[i];
-                    } else if(genericParameterTypes[i] == Object[].class || genericParameterTypes[i] == String[].class) {
-                        convertedParams[i] = Arrays.copyOfRange(inputVal, i, inputVal.length);
-                    } else if (genericParameterTypes[i] == String[][].class) {
-
-                    } else if (genericParameterTypes[i].getTypeName().equals("java.util.List<java.lang.String>")) {
-
-                    } else if (genericParameterTypes[i].getTypeName().equals("java.util.List<java.util.List<java.lang.String>>")) {
-
+                if(genericParameterTypes.length == 3 && genericParameterTypes[0] == String.class && genericParameterTypes[1].getTypeName().equals("java.util.List<java.lang.String>") && genericParameterTypes[2].getTypeName().equals("java.util.List<java.lang.String>")) {
+                    convertedParams[0] = inputVal[0];
+                    convertedParams[1] = Arrays.asList(inputVal[1].split(","));
+                    convertedParams[2] = Arrays.asList(inputVal[2].split(","));
+                } else if(genericParameterTypes.length == 2 && genericParameterTypes[0].getTypeName().equals("java.util.List<java.lang.String>") && genericParameterTypes[1].getTypeName().equals("java.util.List<java.lang.String>")) {
+                    convertedParams[0] = Arrays.asList(inputVal[0].split(","));
+                    convertedParams[1] = Arrays.asList(inputVal[1].split(","));
+                } else {
+                    for (int i = 0; i < genericParameterTypes.length; i++) {
+                        if(genericParameterTypes[i] == int.class) {
+                            convertedParams[i] = Integer.valueOf(inputVal[i]);
+                        } else if(genericParameterTypes[i] == String.class) {
+                            convertedParams[i] = inputVal[i];
+                        } else if(genericParameterTypes[i] == Object[].class || genericParameterTypes[i] == String[].class) {
+                            convertedParams[i] = Arrays.copyOfRange(inputVal, i, inputVal.length);
+                        } else if (genericParameterTypes[i] == String[][].class) {
+                            String[] arr = Arrays.copyOfRange(inputVal, i, inputVal.length);
+                            String[][] res = new String[arr.length][];
+                            for (int i1 = 0; i1 < res.length; i1++) {
+                                res[i1] = arr[i1].split(",");
+                            }
+                            convertedParams[i] = res;
+                        } else if (genericParameterTypes[i].getTypeName().equals("java.util.List<java.lang.String>")) {
+                            String[] arr = Arrays.copyOfRange(inputVal, i, inputVal.length);
+                            convertedParams[i] = Arrays.asList(arr);
+                        } else if (genericParameterTypes[i].getTypeName().equals("java.util.List<java.util.List<java.lang.String>>")) {
+                            List<List<String>> res = new ArrayList<>();
+                            String[] arr = Arrays.copyOfRange(inputVal, i, inputVal.length);
+                            for (String s : arr) {
+                                List<String> ans = new ArrayList<>();
+                                Collections.addAll(ans, s.split(","));
+                                res.add(ans);
+                            }
+                            convertedParams[i] = res;
+                        }
                     }
                 }
 
                 Object invoke = method.invoke(enforcer, convertedParams);
-                System.out.println(returnType.getTypeName());
                 if(returnType == boolean.class) {
                     responseBody.setAllow((Boolean) invoke);
                 } else if (returnType == List.class) {
@@ -67,41 +85,10 @@ public class CommandExecutor {
                     responseBody.setExplain((ArrayList<?>) ((EnforceResult) invoke).getExplain());
                 }
                 enforcer.savePolicy();
+                break;
             }
         }
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(responseBody);
-    }
-
-    public  Method[] filterOverloadedMethods(Method[] methods) {
-        List<Method> filteredMethods = new ArrayList<>();
-
-        for (Method method : methods) {
-            if (containsList(method.getParameterTypes()) && hasOverload(method, methods)) continue;
-            filteredMethods.add(method);
-        }
-
-        return filteredMethods.toArray(new Method[0]);
-    }
-
-    private boolean containsList(Class<?>[] parameterTypes) {
-        for (Class<?> parameterType : parameterTypes) {
-            if (parameterType.equals(List.class) || parameterType.isAssignableFrom(List.class)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean hasOverload(Method method, Method[] methods) {
-        String methodName = method.getName();
-        Class<?>[] paramTypes = method.getParameterTypes();
-
-        for (Method m : methods) {
-            if (m.getName().equals(methodName) && !Arrays.equals(m.getParameterTypes(), paramTypes)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
