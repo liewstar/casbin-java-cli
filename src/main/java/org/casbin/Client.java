@@ -23,6 +23,22 @@ public class Client {
                 return result;
             }
 
+            if(Objects.equals(commandName, "-v") || Objects.equals(commandName, "--version")){
+                String version = Client.class.getPackage().getImplementationVersion();
+                if (version == null) {
+                    // 如果从jar包中无法获取版本号，则尝试从属性文件中读取
+                    try {
+                        Properties properties = new Properties();
+                        properties.load(Client.class.getResourceAsStream("/version.properties"));
+                        version = properties.getProperty("version", "unknown");
+                    } catch (Exception e) {
+                        version = "unknown";
+                    }
+                }
+                System.out.println("casbin-java-cli version " + version);
+                return version;
+            }
+
             // processing line breaks in parameters
             String[] processedArgs = new String[args.length];
             processedArgs[0] = args[0];

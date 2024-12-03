@@ -291,6 +291,11 @@ public class ClientTest {
         assertEquals(Client.run(new String[]{"deleteRoleForUserInDomain", "-m", "examples/rbac_with_domains_model.conf", "-p", "examples/rbac_with_domains_policy.csv", "alice", "admin", "domain3"}), "{\"allow\":true,\"explain\":null}");
     }
 
+    @Test
+    public void testVersion() {
+        Client.run(new String[]{"-v"});
+    }
+
 
     public void resetRBACPolicyFile() {
         File file = new File("examples/rbac_policy.csv");
